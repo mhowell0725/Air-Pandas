@@ -7,4 +7,4 @@ Check this Website for details
 Generally, the return you get from the API would in the form of **json** ~
 
 To sign up for the API key for the AQS
-https://aqs.epa.gov/data/api/signup?email={`Your email here`}
+https://aqs.epa.gov/data/api/signup?email={*Your email here*}
