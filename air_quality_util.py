@@ -48,7 +48,7 @@ def param_requirement(email, api_key, goal):
     "Sites" : ["state", "county"],
     "Parameter Classes" : [],
     "Parameters" : ["pc"],
-    "Quarterly by County" : ["param", "bdate", "edate", "state"]
+    "Quarterly by County" : ["param", "bdate", "edate", "state", "county"]
     }
 
     ## prompt user to enter the required parameters
