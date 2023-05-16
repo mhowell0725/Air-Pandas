@@ -2,6 +2,23 @@ import PySimpleGUI as sg
 import aqs_api
 import data_processing
 
+
+def create_param_inputs(goal):
+    """
+    Create a list of layout elements for the required parameters of the given goal.
+
+    :param goal: The selected goal from the drop-down menu.
+    :return: A list of layout elements.
+    """
+    param_inputs = []
+    params = aqs_api.get_params(goal)
+
+    for param in params:
+        param_inputs.append(sg.Text(param + ":"))
+        param_inputs.append(sg.Input(key=param))
+
+    return param_inputs
+
 # Define the layout for the GUI
 layout = [
     [sg.Text("Select a search goal:")],
@@ -14,25 +31,73 @@ dataframe = None ## when "get_data", dataframe will be change to that and can be
 # Create the window with the defined layout
 window = sg.Window("EPA AQS Data Retrieval", layout)
 
+
 # Event loop for handling user interactions
 while True:
     event, values = window.read()
 
     if event in (sg.WIN_CLOSED, "Exit"):
         break
-
     elif event == "Get Data":
         goal = values["goal"]
-        try:
-            api_response = aqs_api.get_data(goal)
-            if api_response.status_code == 200:
-                data = api_response.json()
-                dataframe = data_processing.convert_to_dataframe(data)
-                sg.popup("Data successfully retrieved.")
-            else:
-                sg.popup_error("Error retrieving data. Please check your input.")
-        except Exception as e:
-            sg.popup_error(f"Error: {str(e)}")
+        print(f"Goal: {goal}")  # Debugging: Print the selected goal
+        if goal:
+            try:
+                # Create input fields for the required parameters
+                param_inputs = create_param_inputs(goal)
+                layout_params = [
+                    [sg.Text("Enter the required parameters:")],
+                    *[[element] for element in param_inputs],
+                    [sg.Button("Submit Parameters"), sg.Button("Cancel")]
+                ]
+                window_params = sg.Window("Enter Parameters", layout_params)
+                
+                # Event loop for the parameters window
+                while True:
+                    event_params, values_params = window_params.read()
+                    if event_params in (sg.WIN_CLOSED, "Cancel"):
+                        break
+                    elif event_params == "Submit Parameters":
+                        # Update the complete_params function to accept a dictionary of parameters
+                        params = aqs_api.complete_params(aqs_api.get_params(goal), values_params)
+                        print(f"Parameters: {params}")  # Debugging: Print the parameters
+                        print(f"values_params: {values_params}")
+                        api_response = aqs_api.get_data(goal, params)
+                        print(f"API Response: {api_response.text}")  # Debugging: Print the API response
+                        if api_response.status_code == 200:
+                            data = api_response.json()
+                            dataframe = data_processing.convert_to_dataframe(data)
+                            sg.popup("Data successfully retrieved.")
+                        else:
+                            sg.popup_error("Error retrieving data. Please check your input.")
+                        break
+
+                window_params.close()
+                
+            except Exception as e:
+                sg.popup_error(f"Error: {str(e)}")
+
+
+
+# # Event loop for handling user interactions
+# while True:
+#     event, values = window.read()
+
+#     if event in (sg.WIN_CLOSED, "Exit"):
+#         break
+
+#     elif event == "Get Data":
+#         goal = values["goal"]
+#         try:
+#             api_response = aqs_api.get_data(goal)
+#             if api_response.status_code == 200:
+#                 data = api_response.json()
+#                 dataframe = data_processing.convert_to_dataframe(data)
+#                 sg.popup("Data successfully retrieved.")
+#             else:
+#                 sg.popup_error("Error retrieving data. Please check your input.")
+#         except Exception as e:
+#             sg.popup_error(f"Error: {str(e)}")
 
     elif event == "Save Data": ## need to get data first
         if dataframe is not None:

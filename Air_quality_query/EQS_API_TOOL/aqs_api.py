@@ -64,7 +64,7 @@ def get_params(goal):
     
     return goal_list[goal]["parameters"]
 
-def complete_params(params_requirement):
+def complete_params(params_requirement, input_values = None):
     '''
     Complete the parameters for the request
     return a dictionary of parameters that can be passed in to request directly
@@ -81,12 +81,13 @@ def complete_params(params_requirement):
         "key": api_key,
     }
 
-    for parameters in params_requirement:
-        params[parameters] = input("Please enter the {}: ".format(parameters))
+    if input_values != None:
+        for parameters in params_requirement:
+            params[parameters] = input_values[parameters]
 
     return params
 
-def get_data(goal):
+def get_data(goal,params):
     '''
     Complete request pull from EQA API with a give goal
     :param goal: the goal of the request (e.g. "Daily by State")
@@ -99,8 +100,8 @@ def get_data(goal):
     complete_params()
     '''
     endpoint = get_endpoint(goal)
-    params_requirement = get_params(goal)
-    params = complete_params(params_requirement)
+    # params_requirement = get_params(goal)
+    # params = complete_params(params_requirement)
 
     response = requests.get(base_url + endpoint, params = params)
 
@@ -121,8 +122,8 @@ def get_data(goal):
 
 
 def main():
-    endpoint = get_params("Daily by State")
-    print(endpoint)
+    cp = complete_params(get_params("Daily by State"), {"param": "44201", "bdate": "20200101", "edate": "20200131", "state": "06", "county": "073"})
+    print(cp)
 
 
 
