@@ -106,11 +106,11 @@ def get_data(goal):
 
     ## convert the response to json
 
-    response = response.json()
+    # response = response.json()
 
-    ##
-    if "Data" not in response:
-        raise ValueError(f"No data found for the given parameters: {params}") 
+    # ##
+    # if "Data" not in response:
+    #     raise ValueError(f"No data found for the given parameters: {params}") 
     
     return response
 
