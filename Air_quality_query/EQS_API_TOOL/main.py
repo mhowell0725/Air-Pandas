@@ -9,6 +9,8 @@ layout = [
     [sg.Button("Get Data"), sg.Button("Save Data"), sg.Button("Exit")]
 ]
 
+dataframe = None ## when "get_data", dataframe will be change to that and can be saved
+
 # Create the window with the defined layout
 window = sg.Window("EPA AQS Data Retrieval", layout)
 
@@ -18,6 +20,7 @@ while True:
 
     if event in (sg.WIN_CLOSED, "Exit"):
         break
+
     elif event == "Get Data":
         goal = values["goal"]
         try:
@@ -30,7 +33,8 @@ while True:
                 sg.popup_error("Error retrieving data. Please check your input.")
         except Exception as e:
             sg.popup_error(f"Error: {str(e)}")
-    elif event == "Save Data":
+
+    elif event == "Save Data": ## need to get data first
         if dataframe is not None:
             file_name = sg.popup_get_file("Save data to a file", save_as=True, default_extension=".csv")
             if file_name:
