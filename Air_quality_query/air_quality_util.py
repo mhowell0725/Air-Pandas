@@ -34,6 +34,7 @@ def get_endpoint(goal):
         "Parameter Classes" : "list/classes",
         "Parameters" : "list/parametersByClass",
         "Quarterly by County" : "quarterlyData/byCounty",
+        "Quarterly by State" : "quarterlyData/byState",
         "Daily by State" : "dailyData/byState"
     }
     
@@ -53,6 +54,7 @@ def param_requirement(email, api_key, goal):
     "Parameter Classes" : [],
     "Parameters" : ["pc"],
     "Quarterly by County" : ["param", "bdate", "edate", "state", "county"],
+    "Quarterly by State" : ["param", "bdate", "edate", "state"],
     "Daily by State" : ["param", "bdate", "edate", "state"]
     }
 
@@ -108,6 +110,7 @@ def main():
         "Parameter Classes" : "list/classes",
         "Parameters" : "list/parametersByClass",
         "Quarterly by County" : "quarterlyData/byCounty",
+        "Quarterly by State" : "quarterlyData/byState",
         "Daily by State" : "dailyData/byState"
     }
     

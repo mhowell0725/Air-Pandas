@@ -23,7 +23,7 @@ def get_api_key(file_name = "myEmailKey.txt"):
     except FileNotFoundError:
         # Prompt the user to enter their email and API key
         layout = [
-            [sg.Text('Enter your email and API key')],
+            [sg.Text('Enter your email and API key for the EPA AQS database')],
             [sg.Text('Email', size =(15, 1)), sg.InputText()],
             [sg.Text('API Key', size =(15, 1)), sg.InputText()],
             [sg.Submit(), sg.Cancel()]
@@ -42,7 +42,6 @@ def get_api_key(file_name = "myEmailKey.txt"):
             with open(file_name, "w") as file:
                 file.write(email + "\n")
                 file.write(api_key)
-
 
     return email, api_key
 
