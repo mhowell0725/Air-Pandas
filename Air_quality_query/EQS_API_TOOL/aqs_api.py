@@ -135,12 +135,9 @@ def get_data(goal,params):
 
 
 
-
 def main():
     cp = complete_params(get_params("Daily by State"), {"param": "44201", "bdate": "20200101", "edate": "20200131", "state": "06", "county": "073"})
     print(cp)
-
-
 
 if __name__ == "__main__":
     main()
