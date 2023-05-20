@@ -62,12 +62,6 @@ while True:
                         params = aqs_api.complete_params(aqs_api.get_params(goal), values_params)
                         dataframe = query_utils.execute_query_strategy(goal, params)
 
-
-                        ## Check "bdate" and "edate" in params to determine query strategy
-
-
-
-
                         # print(f"Parameters: {params}")  # Debugging: Print the parameters
                         # print(params.get("bdate"))
                         # print(f"values_params: {values_params}")
