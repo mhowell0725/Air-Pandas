@@ -94,7 +94,7 @@ def execute_query_strategy(goal, params):
     
 
     if strategy == "condition 3":
-        answer = sg.popup_yes_no('This operation may take a while due to the large date range. Do you want to continue?')
+        answer = sg.popup_yes_no('You are requesting more than 3 month of data. This operation may take a while due to the large date range, and you need to provide a location to store the data beforehand. Do you want to continue?')
         if answer == "No":
             return None
 
@@ -139,6 +139,12 @@ def chunk_query(goal, params):
 
     dataframe = None
 
+    # Define a threshold for number of rows
+    # when exceeded, write the dataframe to disk and clear it
+    THRESHOLD = 10000
+    # user can choose where to save the file and give it a name
+    file_name = sg.popup_get_file("Create a file", save_as=True, default_extension=".csv")
+
     for chunk_bdate, chunk_edate in chunks:
         chunk_params = params.copy()
         chunk_params['bdate'] = chunk_bdate.strftime('%Y%m%d')
@@ -151,10 +157,28 @@ def chunk_query(goal, params):
             data = api_response.json()
             chunk_dataframe = data_processing.convert_to_dataframe(data)
 
+
             if dataframe is None:
                 dataframe = chunk_dataframe
             else:
                 dataframe = pd.concat([dataframe, chunk_dataframe], ignore_index=True)
+
+            # When dataframe size reaches THRESHOLD, write it to disk
+            if len(dataframe) >= THRESHOLD:
+                # Write the dataframe to a CSV file
+                # If the file doesn't exist, create it and write with header
+                # If the file exists, append to it without writing the header
+                with open(file_name, 'a') as f:
+                    dataframe.to_csv(f, header=f.tell()==0, index=False)
+                    
+                # Clear the dataframe
+                dataframe = pd.DataFrame()
+                
+
+            # if dataframe is None:
+            #     dataframe = chunk_dataframe
+            # else:
+            #     dataframe = pd.concat([dataframe, chunk_dataframe], ignore_index=True)
             print("resting...")
             time.sleep(5)
         else:
