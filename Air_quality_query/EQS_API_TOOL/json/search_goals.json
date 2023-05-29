@@ -30,6 +30,10 @@
     "Daily by State": {
         "endpoint": "dailyData/byState",
         "parameters": ["param", "bdate", "edate", "state"]
+    },
+    "Metadata for Air Quality": {
+        "endpoint": "metaData/fieldsByService",
+        "parameters": ["service"]
     }
 }
 

@@ -46,7 +46,7 @@ def get_api_key(file_name = "myEmailKey.txt"):
     return email, api_key
 
 
-def load_serach_goals(file_name = "Air_quality_query\EQS_API_TOOL\search_goals.json"):
+def load_serach_goals(file_name = "Air_quality_query\EQS_API_TOOL\json\search_goals.json"):
     '''
     load the endpoint listing from a json file
     :param file_name: the file name of the file containing endpoint listing
@@ -130,6 +130,9 @@ def get_data(goal,params):
     endpoint = get_endpoint(goal)
 
     response = requests.get(base_url + endpoint, params = params)
+
+    #debug print
+    print(response.url)
     
     return response
 

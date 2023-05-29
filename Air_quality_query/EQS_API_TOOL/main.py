@@ -65,7 +65,7 @@ while True:
                         # print(f"Parameters: {params}")  # Debugging: Print the parameters
                         # print(params.get("bdate"))
                         # print(f"values_params: {values_params}")
-                        #  print(f"API Response: {api_response.text}")  # Debugging: Print the API response
+                        # print(f"API Response: {api_response.text}")  # Debugging: Print the API response
 
 
                         # api_response = aqs_api.get_data(goal, params)
@@ -87,12 +87,6 @@ while True:
     elif event == "Save Data": ## need to get data first
 
         query_utils.save_data(dataframe)
-        # if dataframe is not None:
-        #     file_name = sg.popup_get_file("Save data to a file", save_as=True, default_extension=".csv")
-        #     if file_name:
-        #         data_processing.save_to_file(dataframe, file_name)
-        #         sg.popup("Data successfully saved.")
-        # else:
-        #     sg.popup_error("No data available to save. Please *Get Data* first.")
+
 
 window.close()
