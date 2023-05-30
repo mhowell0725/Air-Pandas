@@ -1,24 +1,52 @@
 import requests
 import json
+import PySimpleGUI as sg
 
 base_url = "https://aqs.epa.gov/data/api/"
 
 def get_api_key(file_name = "myEmailKey.txt"):
     '''
     obtain the email and api key from a file
-    require the first line to be email and second line to be api key]
+    require the first line to be email and second line to be api key
+
+    if no such file exists, prompt the user to input the details and store it in the file
 
     :param file_name: the file name of the file containing email and api key
     :return: email and api key in a tuple
     '''
-    with open(file_name, "r") as file:
-        email = file.readline().strip()
-        api_key = file.readline().strip()
+    try: 
+        # read the first two lines of the file -- email and api key
+        with open(file_name, "r") as file:
+            email = file.readline().strip()
+            api_key = file.readline().strip()
+
+    except FileNotFoundError:
+        # Prompt the user to enter their email and API key
+        layout = [
+            [sg.Text('Enter your email and API key for the EPA AQS database')],
+            [sg.Text('Email', size =(15, 1)), sg.InputText()],
+            [sg.Text('API Key', size =(15, 1)), sg.InputText()],
+            [sg.Submit(), sg.Cancel()]
+        ]
+
+        window = sg.Window('Enter API Details', layout)
+
+        event, values = window.read()
+        window.close()
+
+        if event == 'Submit':
+            email = values[0]
+            api_key = values[1]
+
+            # Save the details to a file
+            with open(file_name, "w") as file:
+                file.write(email + "\n")
+                file.write(api_key)
 
     return email, api_key
 
 
-def load_serach_goals(file_name = "search_goals.json"):
+def load_serach_goals(file_name = "Air_quality_query\EQS_API_TOOL\json\search_goals.json"):
     '''
     load the endpoint listing from a json file
     :param file_name: the file name of the file containing endpoint listing
@@ -100,32 +128,19 @@ def get_data(goal,params):
     complete_params()
     '''
     endpoint = get_endpoint(goal)
-    # params_requirement = get_params(goal)
-    # params = complete_params(params_requirement)
 
     response = requests.get(base_url + endpoint, params = params)
 
-    ## convert the response to json
-
-    # response = response.json()
-
-    # ##
-    # if "Data" not in response:
-    #     raise ValueError(f"No data found for the given parameters: {params}") 
+    #debug print
+    print(response.url)
     
     return response
-
-
-
-
 
 
 
 def main():
     cp = complete_params(get_params("Daily by State"), {"param": "44201", "bdate": "20200101", "edate": "20200131", "state": "06", "county": "073"})
     print(cp)
-
-
 
 if __name__ == "__main__":
     main()
