@@ -1,3 +1,4 @@
 myEmailKey.txt
 *.csv
 censusapikey.txt
+*.sqlite
