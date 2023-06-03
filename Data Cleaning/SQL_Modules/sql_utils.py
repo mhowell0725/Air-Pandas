@@ -15,6 +15,10 @@ def add_fips_column(df, state_col_name, county_col_name):
     ## str.zfill(n): adds zeroes to the left of the string until it reaches a length of n
     return df
 
+def add_year_column(df, date_col_name):
+    pass
+
+
 def process_chunk(chunk):
     '''
     Process a chunk of data from the EPA API *daily data* 
