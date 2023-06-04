@@ -92,6 +92,18 @@ def get_params(goal):
     
     return goal_list[goal]["parameters"]
 
+def load_param_descriptions(file_name = "Air_quality_query\EQS_API_TOOL\json\param_descriptions.json"):
+    '''
+    load the parameter descriptions from a json file
+    :param file_name: the file location containing parameter descriptions
+    :return: parameter descriptions in a dictionary
+    '''
+
+    with open(file_name, 'r') as file:
+        param_descriptions = json.load(file)
+    return param_descriptions
+
+
 def complete_params(params_requirement, input_values = None):
     '''
     Complete the parameters for the request

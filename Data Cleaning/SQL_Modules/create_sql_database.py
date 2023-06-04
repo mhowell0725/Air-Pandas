@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 
 
 def main():
-    engine = create_engine('sqlite:///my_database.sqlite')  
+    engine = create_engine('sqlite:///airpandas.sqlite')  
 
     
     census_file_name = {
@@ -23,11 +23,8 @@ def main():
     for table_name, file_name in census_file_name.items():
         sql_utils.query_census(file_name, engine, table_name)
 
-    file_names = [r'database\2009_2014.6_CA_PM2.5.csv', r'database\2014.6_2021_CA_PM2.5.csv']
+    file_names = [r'database\2009_2014.6_CA_PM2.5_samples.csv', r'database\2014.6_2021_CA_PM2.5_samples.csv']
     sql_utils.process_csv_in_chunks(file_names, 10000, engine, 'PM25')
-
-    file_names = [r'database\2009_2014.6_CA_PM10.csv', r'database\2014.6_2021_CA_PM10.csv']
-    sql_utils.process_csv_in_chunks(file_names, 10000, engine, 'PM10')
 
 
 

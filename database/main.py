@@ -2,6 +2,13 @@ import PySimpleGUI as sg
 import aqs_api
 import data_processing
 import query_utils
+import textwrap
+
+
+param_descriptions = aqs_api.load_param_descriptions()
+for param, description in param_descriptions.items():
+    param_descriptions[param] = textwrap.fill(description, width=50)
+
 
 def create_param_inputs(goal):
     """
@@ -13,9 +20,21 @@ def create_param_inputs(goal):
     param_inputs = []
     params = aqs_api.get_params(goal)
 
+
     for param in params:
-        param_inputs.append(sg.Text(param + ":"))
-        param_inputs.append(sg.Input(key=param))
+    #     param_inputs.append(sg.Text(param + ":"))
+    #     param_inputs.append(sg.Input(key=param))
+    #     param_inputs.append(sg.Button("Help_" + param)) # a help button for each parameter
+        param_description = param_descriptions.get(param, "No description available.")
+        param_inputs.append([sg.Text(param + ":"), 
+                             sg.Input(key=param),
+                             sg.pin(sg.Button('?', 
+                                              # when hover show both param and description
+                                              tooltip= f'{param}: {param_description}',
+                                              button_color=('black', 'white'), 
+                                              border_width=0,
+                                              key=f'Help_{param}'))])
+    
 
     return param_inputs
 
@@ -61,22 +80,27 @@ while True:
                         # Update the complete_params function to accept a dictionary of parameters
                         params = aqs_api.complete_params(aqs_api.get_params(goal), values_params)
                         dataframe = query_utils.execute_query_strategy(goal, params)
-
-                        # print(f"Parameters: {params}")  # Debugging: Print the parameters
-                        # print(params.get("bdate"))
-                        # print(f"values_params: {values_params}")
-                        # print(f"API Response: {api_response.text}")  # Debugging: Print the API response
-
-
-                        # api_response = aqs_api.get_data(goal, params)
                         
-                        # if api_response.status_code == 200:
-                        #     data = api_response.json()
-                        #     dataframe = data_processing.convert_to_dataframe(data)
-                        #     sg.popup("Data successfully retrieved.")
-                        # else:
-                        #     sg.popup_error("Error retrieving data. Please check your input.")
-                        # break
+                    elif event_params.startswith("Help_"):
+                        # Get the parameter this help button is associated with
+                        param = event_params.split("_")[1]
+                        # Get the description of this parameter
+                        description = param_descriptions.get(param, "No description available.")
+                        # Create a new window to display the parameter and its description
+                        layout_description = [
+                            [sg.Text(f"{param}:\n{description}")],
+                            [sg.Button("Close")]
+                        ]
+                        window_description = sg.Window("Parameter Description", layout_description)
+                        
+                        # Event loop for the description window
+                        while True:
+                            event_description, values_description = window_description.read()
+                            if event_description in (sg.WIN_CLOSED, "Close"):
+                                break
+
+                        window_description.close()
+                    
 
                 window_params.close()
                 
