@@ -38,33 +38,12 @@ def process_chunk(chunk):
     add_fips_column(chunk, 'state_code', 'county_code')
     add_date_columns(chunk)
     
-    # Calculate the number of measures per site and add it as a new column
-    site_counts = chunk.groupby(['latitude', 'longitude']).size().rename('measures')
-    chunk = chunk.merge(site_counts, on=['latitude', 'longitude'])
+    # NOT WORKING PART!! -- 
+    # # Calculate the number of measures per site and add it as a new column
+    # site_counts = chunk.groupby(['latitude', 'longitude']).size().rename('measures')
+    # chunk = chunk.merge(site_counts, on=['latitude', 'longitude'])
     
     return chunk
-
-
-# def process_csv_in_chunks(file_name, chunk_size, sql_engine, table_name):
-#     '''
-#     Process a CSV file (for air quality, now) in chunks and store the results in a SQL database
-
-#     :param file_name: the name of the CSV file to process
-#     :param chunk_size: the number of rows to process at a time
-#     :param sql_engine: the SQL engine to use to connect to the database
-#     :param table_name: the name of the table to store the data in
-
-#     '''
-
-#     chunk_iter = pd.read_csv(file_name, chunksize=chunk_size)
-    
-#     for i, chunk in enumerate(chunk_iter):
-#         chunk = process_chunk(chunk)
-        
-#         if i == 0:
-#             chunk.to_sql(table_name, sql_engine, if_exists='replace', index=False)
-#         else:
-#             chunk.to_sql(table_name, sql_engine, if_exists='append', index=False)
 
 
 def process_csv_in_chunks(file_names, chunk_size, sql_engine, table_name):
