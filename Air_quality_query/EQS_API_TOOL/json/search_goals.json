@@ -15,10 +15,6 @@
         "endpoint": "list/classes",
         "parameters": []
     },
-    "Parameters": {
-        "endpoint": "list/parametersByClass",
-        "parameters": ["pc"]
-    },
     "Quarterly by County": {
         "endpoint": "quarterlyData/byCounty",
         "parameters": ["param", "bdate", "edate", "state", "county"]
@@ -31,10 +27,15 @@
         "endpoint": "dailyData/byState",
         "parameters": ["param", "bdate", "edate", "state"]
     },
+    "All Samples by State": {
+        "endpoint": "sampleData/byState",
+        "parameters": ["param", "bdate", "edate", "state"]
+    },
     "Metadata for Air Quality": {
         "endpoint": "metaData/fieldsByService",
         "parameters": ["service"]
     }
+
 }
 
 
