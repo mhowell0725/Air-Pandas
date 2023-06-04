@@ -4,7 +4,10 @@ from sqlalchemy import create_engine
 
 
 def main():
-    engine = create_engine('sqlite:///airpandas.sqlite')  
+    ## Create a SQL engine -- the name of the database is 
+
+    output_database_name = 'airpandas_1.sqlite' ## YOU CAN CHANGE THIS NAME
+    engine = create_engine(f'sqlite:///{output_database_name}')
 
     
     census_file_name = {
