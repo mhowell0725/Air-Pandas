@@ -93,15 +93,16 @@ def get_unique_fips(sql_database, table_name):
     
     return df
 
-# def get_measurement_percentage(sql_database, table_name, fips, threshold, date_range=None):
+
+# def get_measurement_percentage(sql_database, table_name, fips, threshold, start_date=None, end_date=None):
 #     conn = sqlite3.connect(sql_database)
 
 #     # Initialize the WHERE clause with the FIPS code
 #     where_clause = f"FIPS = '{fips}'"
 
 #     # If a date range is provided, add it to the WHERE clause
-#     if date_range is not None:
-#         where_clause += f" AND date_local BETWEEN '{date_range[0]}' AND '{date_range[1]}'"
+#     if start_date is not None and end_date is not None:
+#         where_clause += f" AND date_local BETWEEN '{start_date}' AND '{end_date}'"
 
 #     # Query the total number of measurements
 #     df_total = pd.read_sql_query(f"""
@@ -120,12 +121,18 @@ def get_unique_fips(sql_database, table_name):
 #     conn.close()
 
 #     # Calculate the percentage of measurements that exceed the threshold
-#     percentage = (df_threshold['threshold_count'][0] / df_total['total_count'][0]) * 100
+#     if df_total['total_count'][0] == 0:
+#         percentage = None  # No measurements were taken in the given date range
 
-#     ## print: calculation done on FIPS code: {fips}
-#     print(f"calculation done on FIPS code: {fips}")
+#         print(f"No measurements were taken in the given date range for FIPS code: {fips}")
+#     else:
+#         percentage = (df_threshold['threshold_count'][0] / df_total['total_count'][0]) * 100
+
+#         print(f"calculation done on FIPS code: {fips}")
 
 #     return percentage
+
+### optimize access time: INDEXING
 
 def get_measurement_percentage(sql_database, table_name, fips, threshold, start_date=None, end_date=None):
     conn = sqlite3.connect(sql_database)
@@ -137,32 +144,49 @@ def get_measurement_percentage(sql_database, table_name, fips, threshold, start_
     if start_date is not None and end_date is not None:
         where_clause += f" AND date_local BETWEEN '{start_date}' AND '{end_date}'"
 
-    # Query the total number of measurements
-    df_total = pd.read_sql_query(f"""
-        SELECT COUNT(*) as total_count
+    # Query the total number of measurements and the number of measurements that exceed the threshold
+    df = pd.read_sql_query(f"""
+        SELECT 
+            COUNT(*) as total_count,
+            SUM(CASE WHEN sample_measurement > {threshold} THEN 1 ELSE 0 END) as threshold_count
         FROM {table_name}
         WHERE {where_clause}
-        """, conn)
-
-    # Query the number of measurements that exceed the threshold
-    df_threshold = pd.read_sql_query(f"""
-        SELECT COUNT(*) as threshold_count
-        FROM {table_name}
-        WHERE {where_clause} AND sample_measurement > {threshold}
         """, conn)
 
     conn.close()
 
     # Calculate the percentage of measurements that exceed the threshold
-    if df_total['total_count'][0] == 0:
+    if df['total_count'][0] == 0:
         percentage = None  # No measurements were taken in the given date range
-
         print(f"No measurements were taken in the given date range for FIPS code: {fips}")
     else:
-        percentage = (df_threshold['threshold_count'][0] / df_total['total_count'][0]) * 100
-
-        print(f"calculation done on FIPS code: {fips}")
+        percentage = (df['threshold_count'][0] / df['total_count'][0]) * 100
+        print(f"Calculation done on FIPS code: {fips}")
 
     return percentage
 
+
+
+## indexing the database -- create index function
+
+def create_index(sql_database, table_name, columns):
+    '''
+    Create an index on the given table and columns
+    
+    :param sql_database: the name of the SQL database to query
+    :param table_name: the name of the table to query
+    :param columns: a list of columns to return
+
+    '''
+    conn = sqlite3.connect(sql_database)
+    c = conn.cursor()
+
+    # If columns is a string, make it a single-item list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    column_str = ", ".join(columns)
+    c.execute(f"CREATE INDEX IF NOT EXISTS idx_{table_name}_{'_'.join(columns)} ON {table_name} ({column_str})")
+    conn.commit()
+    conn.close()
 
