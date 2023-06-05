@@ -81,6 +81,18 @@ def get_unique_sites(sql_database, table_name):
     
     return df
 
+def get_unique_fips(sql_database, table_name):
+    conn = sqlite3.connect(sql_database)
+    
+    df = pd.read_sql_query(f"""
+        SELECT DISTINCT FIPS
+        FROM {table_name}
+        """, conn)
+        
+    conn.close()
+    
+    return df
+
 # def get_measurement_percentage(sql_database, table_name, fips, threshold, date_range=None):
 #     conn = sqlite3.connect(sql_database)
 

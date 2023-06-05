@@ -37,7 +37,17 @@ def process_chunk(chunk):
     # Add FIPS code and date columns
     add_fips_column(chunk, 'state_code', 'county_code')
     add_date_columns(chunk)
+
+    ## Drop unnecessary columns
+
+    # Drop columns when 'qualifier' is not 'None' (string)
+    chunk = chunk[chunk['qualifier'].isnull()]
     
+    # Drop 'sample_duration', 'sample_duration_code', 'sample_frequency', 'poc', 'detection_limit', 'uncertainty', 'qualifier', 'method_type', 'method', 'method_code', 'site_number' columns
+
+    chunk = chunk.drop(columns=['sample_duration', 'sample_duration_code', 'sample_frequency', 'poc', 'detection_limit', 'uncertainty', 'qualifier', 'method_type', 'method', 'method_code', 'site_number'])
+
+
     # NOT WORKING PART!! -- 
     # # Calculate the number of measures per site and add it as a new column
     # site_counts = chunk.groupby(['latitude', 'longitude']).size().rename('measures')
