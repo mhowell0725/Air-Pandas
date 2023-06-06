@@ -1,5 +1,7 @@
 import sqlite3
 import pandas as pd
+import plotly.express as px
+import json
 
 def get_all_tables(sql_database):
     '''
@@ -142,7 +144,11 @@ def get_measurement_percentage(sql_database, table_name, fips, threshold, start_
 
     # If a date range is provided, add it to the WHERE clause
     if start_date is not None and end_date is not None:
-        where_clause += f" AND date_local BETWEEN '{start_date}' AND '{end_date}'"
+        ## determine the format of the date -- if they are integers, then they are years
+        if isinstance(start_date, int) and isinstance(end_date, int):
+            where_clause += f" AND Year BETWEEN {start_date} AND {end_date}"
+        else:
+            where_clause += f" AND date_local BETWEEN '{start_date}' AND '{end_date}'"
 
     # Query the total number of measurements and the number of measurements that exceed the threshold
     df = pd.read_sql_query(f"""
@@ -189,4 +195,61 @@ def create_index(sql_database, table_name, columns):
     c.execute(f"CREATE INDEX IF NOT EXISTS idx_{table_name}_{'_'.join(columns)} ON {table_name} ({column_str})")
     conn.commit()
     conn.close()
+
+
+def ploty_census(sql_database, census_table,census_var,year):
+
+    conn = sqlite3.connect(sql_database)
+
+    df = pd.read_sql_query(f"x")
+                           
+    pass
+
+
+# def analyze_air_quality(year_range, threshold, sql_database, table_name, geojson_file ,state = None,):
+
+
+
+
+def get_county_fips(sql_database, table_name, state=None, state_column='state', county_column='county', fips_column='FIPS'):
+    conn = sqlite3.connect(sql_database)
+
+    # Add a WHERE clause if a state is specified
+    where_clause = f"WHERE {state_column} = '{state}'" if state else ''
+
+    df_counties = pd.read_sql_query(f"SELECT DISTINCT {fips_column}, {county_column} FROM {table_name} {where_clause}", conn)
+    conn.close()
+
+    return df_counties
+
+def air_threshold_percentages(df_counties, sql_database, table_name, threshold, begin_year=2009, end_year=2021):
+    percentages = []
+    for fips, county in df_counties.values:
+        percentage = get_measurement_percentage(sql_database, table_name, fips, threshold, begin_year, end_year)
+        percentages.append((fips, county, percentage))
+
+    # Create a DataFrame from the percentages data
+    df_percentages = pd.DataFrame(percentages, columns=['FIPS', 'County', 'Percentage'])
+    return df_percentages
+
+
+def plot_air_quality(df, geojson_file='geojson-counties-fips.json'):
+    # Load GeoJSON file
+    with open(geojson_file) as response:
+        counties = json.load(response)
+
+    # Define function to plot choropleth map
+    fig = px.choropleth(df, geojson=counties, locations= 'FIPS', color='Percentage',
+                        color_continuous_scale="Viridis",
+                        scope="usa",
+                        labels={'Percentage': 'Percentage of Unhealthy Air Quality'},
+                        hover_name= 'County',
+                        hover_data={'FIPS': False})
+    fig.update_geos(
+        fitbounds="locations", 
+        visible=False
+    )
+    fig.show()
+
+
 
