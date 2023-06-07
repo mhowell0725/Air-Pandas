@@ -3,6 +3,13 @@ import pandas as pd
 import re
 import json
 
+''' 
+def clean_metadata(file_name, new_file_name):
+//clean_abbrev(abbrev)
+
+
+'''
+
 # Function to clean abbreviations
 def clean_abbrev(abbrev):
     '''

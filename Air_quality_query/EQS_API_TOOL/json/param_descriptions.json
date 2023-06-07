@@ -3,6 +3,7 @@
     "bdate": "the begin time of the data selection, in yyyymmdd; e.g. 20100101",
     "edate": "the end time of the data selection, in yyyymmdd; e.g. 20211230",
     "state": "a 2-digit code representing the state you are looking for; e.g. California = 06",
-    "county": "a 3-digit code representing the county you are looking for; e.g. Los Angeles = 037"
+    "county": "a 3-digit code representing the county you are looking for; e.g. Los Angeles = 037",
+    "service": "the endpoint you are looking for; e.g. dailysummary = dailyData"
 
 }
