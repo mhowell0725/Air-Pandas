@@ -261,7 +261,7 @@
             "DP05_0053PE"
         ]
     },
-    "HOUSE_HEATING_FUEL ": {
+    "HOUSE_HEATING_FUEL": {
         "2021": [
             "DP04_0062E",
             "DP04_0062PE",
@@ -1350,7 +1350,7 @@
             "DP03_0032PE"
         ]
     },
-    "EMPLOYMENT_STATUS ": {
+    "EMPLOYMENT_STATUS": {
         "2021": [
             "DP03_0001E",
             "DP03_0001PE",
@@ -2162,7 +2162,7 @@
             "DP03_0063E"
         ]
     },
-    "PERCENTAGE_OF_FAMILIES_AND_PEOPLE_WHOSE_INCOME_IN_THE_PAST_12_MONTHS_IS_BELOW_THE_POVERTY_LEVEL": {
+    "UNDER_POVERTY": {
         "2021": [
             "DP03_0128PE"
         ],

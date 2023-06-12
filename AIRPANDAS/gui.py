@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import aqs_request
+import census_request
 import textwrap
 
 class AqsGui:
@@ -126,8 +127,47 @@ class AqsGui:
 
         self.window.close()
 
+class CensusGui:
+    def __init__(self):
+        self.api_key = census_request.get_api_key()
+        self.category_code_dict = census_request.read_json('AIRPANDAS\json\category_code.json')
+        self.year_category_abbrev_dict = census_request.read_json('AIRPANDAS\json\year_category_abbrev.json')
+        self.categories = set()
+
+        for year in self.year_category_abbrev_dict:
+            self.categories.update(self.year_category_abbrev_dict[year].keys())
+
+        self.layout = [
+            [sg.Text("Select a category:")],
+            [sg.InputCombo(list(self.categories), key="category")],
+            [sg.Text("Select a year:")],
+            [sg.InputCombo(list(range(2009, 2022)), key="year")],
+            [sg.Button("Get Data"), sg.Button("Exit")]
+        ]
+        
+        self.window = sg.Window("US Census Data Retrieval", self.layout)
+
+    def start(self):
+        while True:
+            event, values = self.window.read()
+
+            if event in (sg.WIN_CLOSED, "Exit"):
+                break
+            elif event == "Get Data":
+                category = values["category"]
+                year = values["year"]
+                
+                if category and year:
+                    try:
+                        census_request.query_census_data(int(year), int(year), category)
+                        sg.popup('Data successfully retrieved and saved as CSV')
+                    except Exception as e:
+                        sg.popup_error(f"Error: {str(e)}")
+
+        self.window.close()
+
 # Using the GUI
-gui = AqsGui()
+gui = CensusGui()
 gui.start()
 
 
