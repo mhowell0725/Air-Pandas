@@ -1,9 +1,9 @@
-### defaultly you need the sqlite databse in the root directory
-
 import sqlite3
 import pandas as pd
 import plotly.express as px
 import json
+
+### defaultly you need the sqlite databse in the root directory
 
 def get_all_tables(sql_database):
     '''
@@ -39,6 +39,32 @@ def get_column_names(table_name, sql_database):
 
     return [column[1] for column in columns]
 
+
+## indexing the database --- very important for speed!!
+
+def create_index(sql_database, table_name, columns):
+    '''
+    Create an index on the given table and columns
+    
+    :param sql_database: the name of the SQL database to query
+    :param table_name: the name of the table to query
+    :param columns: a list of columns to return
+
+    '''
+    conn = sqlite3.connect(sql_database)
+    c = conn.cursor()
+
+    # If columns is a string, make it a single-item list
+    if isinstance(columns, str):
+        columns = [columns]
+
+    column_str = ", ".join(columns)
+    c.execute(f"CREATE INDEX IF NOT EXISTS idx_{table_name}_{'_'.join(columns)} ON {table_name} ({column_str})")
+    conn.commit()
+    conn.close()
+
+### aceessing the database
+
 def query_table(sql_database, table_name, columns, start_date, end_date, fips=None):
     '''
     Query the SQL database and return a pandas DataFrame
@@ -54,9 +80,9 @@ def query_table(sql_database, table_name, columns, start_date, end_date, fips=No
     conn = sqlite3.connect(sql_database)
 
     # Initialize the WHERE clause with the date range
-    if table_name == 'PM25':
+    if table_name == 'PM25': ## for now, we only have PM25 table for air quality
         where_clause = f"date_local BETWEEN '{start_date}' AND '{end_date}'"
-    else:
+    else: ## other tables are all census tables
         where_clause = f"Year BETWEEN {start_date} AND {end_date}"
 
     # If a FIPS code is provided, add it to the WHERE clause
@@ -74,6 +100,10 @@ def query_table(sql_database, table_name, columns, start_date, end_date, fips=No
     return df
 
 def get_unique_sites(sql_database, table_name):
+    """
+    for air quality data, we have latitude and longitude only
+    
+    """
     conn = sqlite3.connect(sql_database)
     
     df = pd.read_sql_query(f"""
@@ -86,6 +116,10 @@ def get_unique_sites(sql_database, table_name):
     return df
 
 def get_unique_fips(sql_database, table_name):
+    """
+    for air quality and census data, all tables have FIPS code
+
+    """
     conn = sqlite3.connect(sql_database)
     
     df = pd.read_sql_query(f"""
@@ -97,10 +131,42 @@ def get_unique_fips(sql_database, table_name):
     
     return df
 
+def get_county_fips(sql_database, table_name, state=None, state_column='state', county_column='county', fips_column='FIPS'):
 
-### optimize access time: INDEXING
+    """
+    Returns a DataFrame of all counties in the database with FIPS code and county name
 
-def get_measurement_percentage(sql_database, table_name, fips, threshold, start_date=None, end_date=None):
+    :param sql_database: the name of the SQL database to query
+    :param table_name: the name of the table to query
+    state is not implemented yet
+    """ 
+
+    conn = sqlite3.connect(sql_database)
+
+    # Add a WHERE clause if a state is specified
+    where_clause = f"WHERE {state_column} = '{state}'" if state else ''
+
+    df_counties = pd.read_sql_query(f"SELECT DISTINCT {fips_column}, {county_column} FROM {table_name} {where_clause}", conn)
+    conn.close()
+
+    return df_counties
+
+
+### an essential function for evaluating the air quality
+
+def get_poorair_percentage(sql_database, table_name, fips, threshold, start_date=None, end_date=None):
+    """
+    Calculate the percentage of measurements that exceed the given threshold;
+    An useful function for evaluating the air quality.
+
+    :param sql_database: the name of the SQL database to query
+    :param table_name: the name of the table to query (air quality hourly sampelData only)
+    :param fips: the FIPS code to query
+    :param threshold: the threshold for air quality measurements, calulated the percentage of measurements that exceed the threshold
+    :param start_date: the start date of the date range to query (either a year or a date in the format YYYY-MM-DD)
+    :param end_date: the end date of the date range to query (either a year or a date in the format YYYY-MM-DD)
+    
+    """
     conn = sqlite3.connect(sql_database)
 
     # Initialize the WHERE clause with the FIPS code
@@ -135,68 +201,35 @@ def get_measurement_percentage(sql_database, table_name, fips, threshold, start_
 
     return percentage
 
-
-
-## indexing the database -- create index function
-
-def create_index(sql_database, table_name, columns):
-    '''
-    Create an index on the given table and columns
-    
-    :param sql_database: the name of the SQL database to query
-    :param table_name: the name of the table to query
-    :param columns: a list of columns to return
-
-    '''
-    conn = sqlite3.connect(sql_database)
-    c = conn.cursor()
-
-    # If columns is a string, make it a single-item list
-    if isinstance(columns, str):
-        columns = [columns]
-
-    column_str = ", ".join(columns)
-    c.execute(f"CREATE INDEX IF NOT EXISTS idx_{table_name}_{'_'.join(columns)} ON {table_name} ({column_str})")
-    conn.commit()
-    conn.close()
-
-
-def ploty_census(sql_database, census_table,census_var,year):
-
-    conn = sqlite3.connect(sql_database)
-
-    df = pd.read_sql_query(f"x")
-                           
-    pass
-
-
-# def analyze_air_quality(year_range, threshold, sql_database, table_name, geojson_file ,state = None,):
-
-
-
-def get_county_fips(sql_database, table_name, state=None, state_column='state', county_column='county', fips_column='FIPS'):
-    conn = sqlite3.connect(sql_database)
-
-    # Add a WHERE clause if a state is specified
-    where_clause = f"WHERE {state_column} = '{state}'" if state else ''
-
-    df_counties = pd.read_sql_query(f"SELECT DISTINCT {fips_column}, {county_column} FROM {table_name} {where_clause}", conn)
-    conn.close()
-
-    return df_counties
-
+## utilize get_poorair_percentage in a loop to get the percentage for all counties
 def air_threshold_percentages(df_counties, sql_database, table_name, threshold, begin_year=2009, end_year=2021):
+    """
+    Calculate the percentage of measurements that exceed the given threshold for all counties;
+
+    :param df_counties: a DataFrame of FIPS codes and counties to query
+    :param sql_database: the name of the SQL database to query
+    :param table_name: the name of the table to query (air quality hourly sampelData only)
+    :param threshold: the threshold for air quality measurements, calulated the percentage of measurements that exceed the threshold
+
+    retun a DataFrame of FIPS codes, counties, and a percentages column add to it
+
+    note: one way to obtain a full df_counties use get_county_fips function.
+    e.g. df_counties = get_county_fips(sql_database, table_name) -- this will return all counties in the database
+    
+    """
+    
     percentages = []
     for fips, county in df_counties.values:
-        percentage = get_measurement_percentage(sql_database, table_name, fips, threshold, begin_year, end_year)
+        percentage = get_poorair_percentage(sql_database, table_name, fips, threshold, begin_year, end_year)
         percentages.append((fips, county, percentage))
 
     # Create a DataFrame from the percentages data
     df_percentages = pd.DataFrame(percentages, columns=['FIPS', 'County', 'Percentage'])
     return df_percentages
 
-
+## example to plot the above df_percentages
 def plot_air_quality(df, geojson_file='geojson-counties-fips.json'):
+
     # Load GeoJSON file
     with open(geojson_file) as response:
         counties = json.load(response)
@@ -215,4 +248,8 @@ def plot_air_quality(df, geojson_file='geojson-counties-fips.json'):
     fig.show()
 
 
+def main():
+    get_county_fips('airpandas_1.sqlite', 'PM25')
 
+if __name__ == '__main__':
+    main()

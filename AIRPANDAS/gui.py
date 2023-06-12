@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import aqs_request
 import census_request
+import database_query as dbq
 import textwrap
 
 class AqsGui:
@@ -166,9 +167,116 @@ class CensusGui:
 
         self.window.close()
 
+
+
+
+class dbGUI:
+    def __init__(self):
+        self.database = None
+
+    def start(self):
+        if self.database == None:
+            self.database = self.select_database()
+        self.main_menu()
+                
+    def select_database(self):
+        layout = [
+            [sg.Text('Choose a SQLite database')],
+            [sg.Input(), sg.FileBrowse(file_types=(('SQLite Database', '*.sqlite'),))],
+            [sg.OK(), sg.Cancel()]
+        ]
+
+        window = sg.Window('Select SQLite database', layout)
+
+        while True:
+            event, values = window.read()
+            if event in (sg.WINDOW_CLOSED, 'Cancel'):
+                break
+            elif event == 'OK':
+                if values[0]:  # if a file has been selected
+                    window.close()
+                    return values[0]
+
+        window.close()
+        return None
+
+    def main_menu(self):
+        layout = [
+            [sg.Text('Choose an operation')],
+            [sg.Button('Query data from a table')],
+            [sg.Button('Exit')]
+        ]
+
+        window = sg.Window('Main Menu', layout)
+
+        while True:
+            event, values = window.read()
+            if event in (sg.WINDOW_CLOSED, 'Exit'):
+                break
+            elif event == 'Query data from a table':
+                self.query_data()
+
+        window.close()
+
+    def query_data(self):
+        tables = dbq.get_all_tables(self.database)
+        table_layout = [
+            [sg.Text('Choose a table')],
+            [sg.Listbox(values=tables, size=(30, len(tables)), key='-TABLE-', enable_events=True)],
+            [sg.Button('OK'), sg.Button('Back')]
+        ]
+
+        table_window = sg.Window('Select Table', table_layout)
+
+        while True:
+            event, values = table_window.read()
+            if event in (sg.WINDOW_CLOSED, 'Back'):
+                break
+            elif event == '-TABLE-':
+                table_name = values['-TABLE-'][0]
+                columns = dbq.get_column_names(table_name, self.database)
+                column_layout = [
+                    [sg.Text('Choose columns')],
+                    [sg.Listbox(values=columns, size=(30, len(columns)), select_mode=sg.LISTBOX_SELECT_MODE_MULTIPLE, key='-COLUMNS-')],
+                    [sg.Button('OK'), sg.Button('Back')]
+                ]
+
+                column_window = sg.Window('Select Columns', column_layout)
+
+                while True:
+                    event, values = column_window.read()
+                    if event in (sg.WINDOW_CLOSED, 'Back'):
+                        break
+                    elif event == 'OK':
+                        selected_columns = values['-COLUMNS-']
+                        date_layout = [
+                            ## add a helper note to explain date format
+                            [sg.Text('Enter dates in YYYY-MM-DD format for Airquality data, YYYY for Census data')],
+                            [sg.Text('Enter start date'), sg.InputText(key='-START_DATE-')],
+                            [sg.Text('Enter end date'), sg.InputText(key='-END_DATE-')],
+                            [sg.Text('Enter FIPS code (optional)'), sg.InputText(key='-FIPS-')],
+                            [sg.Button('Submit'), sg.Button('Back')]
+                        ]
+
+                        date_window = sg.Window('Enter Dates and FIPS Code', date_layout)
+                        while True:
+                            event, values = date_window.read()
+                            if event in (sg.WINDOW_CLOSED, 'Back'):
+                                break
+                            elif event == 'Submit':
+                                start_date = values['-START_DATE-']
+                                end_date = values['-END_DATE-']
+                                fips = values['-FIPS-'] if values['-FIPS-'] else None
+                                df = dbq.query_table(self.database, table_name, selected_columns, start_date, end_date, fips)
+                                print(df)
+                        date_window.close()
+
+                column_window.close()
+        table_window.close()
 # Using the GUI
-gui = CensusGui()
+gui = dbGUI()
 gui.start()
+
 
 
 

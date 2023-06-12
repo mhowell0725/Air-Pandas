@@ -116,8 +116,7 @@ def query_census_data(start_year, end_year, category):
 
 
 
-
-### 
+### The code we used to obtain ALL the census data we needed ###
 def main():
     '''
     This is an example of how to use the functions in this file to query the US Census API
