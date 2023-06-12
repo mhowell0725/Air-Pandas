@@ -4,10 +4,12 @@ from sqlalchemy import create_engine
 '''
 This script is a sample of how to creates a SQL database from the CSV files we had from the AQS API and the Census API.
 
-For to replicate, first obtain the CSV files from the AQS API and the Census API,
+It will interact with the data_cleaning.py file, which contains the functions query and to clean the data by chunk, and store them in the database.
+
+To replicate our process, first obtain the CSV files from the AQS API and the Census API,
 then change the file paths and names in the main() function.
 
-For AQS data, we only handle the sampleData, not the dailyData. (i.e. any AQS dataframe with hourly data)
+For AQS data, we only handle the sampleData, not the dailyData. (i.e. this handle any AQS dataframe with hourly data)
 
 You can also change the name of the output database
 
