@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import aqs_api
-import data_processing
+import data_processing ## not implemented yet
 import query_utils
 import textwrap
 
@@ -50,7 +50,6 @@ dataframe = None ## when "get_data", dataframe will be change to that and can be
 # Create the window with the defined layout
 window = sg.Window("EPA AQS Data Retrieval", layout)
 
-
 # Event loop for handling user interactions
 while True:
     event, values = window.read()
@@ -59,7 +58,7 @@ while True:
         break
     elif event == "Get Data":
         goal = values["goal"]
-        print(f"Goal: {goal}")  # Debugging: Print the selected goal
+        #print(f"Goal: {goal}")  # For Debugging: Print the selected goal
         if goal:
             try:
                 # Create input fields for the required parameters

@@ -144,7 +144,7 @@ def get_data(goal,params):
     response = requests.get(base_url + endpoint, params = params)
 
     #debug print
-    print(response.url)
+    #print(response.url)
     
     return response
 
