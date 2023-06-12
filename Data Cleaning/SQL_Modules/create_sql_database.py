@@ -1,5 +1,4 @@
 import sql_utils
-import pandas as pd
 from sqlalchemy import create_engine
 
 

@@ -49,8 +49,8 @@ def get_api_key(file_name = "aqsEmailKey.txt"):
 
     return email, api_key
 
-
-def load_serach_goals(file_name = "Air_quality_query\EQS_API_TOOL\json\search_goals.json"):
+## search goals is expandable by editing the json file -- add endpoints and parameters
+def load_serach_goals(file_name = "AIRPANDAS\json\search_goals.json"):
     '''
     load the endpoint listing from a json file
     :param file_name: the file name of the file containing endpoint listing
@@ -61,7 +61,6 @@ def load_serach_goals(file_name = "Air_quality_query\EQS_API_TOOL\json\search_go
 
     return goals_list
 
-## Check json file for endpoint and parameters for request
 def get_endpoint(goal):
     '''
     Based on user input, find the endpoint where the data is located
@@ -96,7 +95,9 @@ def get_params(goal):
     
     return goal_list[goal]["parameters"]
 
-def load_param_descriptions(file_name = "Air_quality_query\EQS_API_TOOL\json\param_descriptions.json"):
+
+## the description is expandable by editing this json file -- add parameters and repspective descriptions
+def load_param_descriptions(file_name = "AIRPANDAS\json\param_descriptions.json"):
     '''
     load the parameter descriptions from a json file
     :param file_name: the file location containing parameter descriptions
@@ -106,7 +107,6 @@ def load_param_descriptions(file_name = "Air_quality_query\EQS_API_TOOL\json\par
     with open(file_name, 'r') as file:
         param_descriptions = json.load(file)
     return param_descriptions
-
 
 def complete_params(params_requirement, input_values = None):
     '''
