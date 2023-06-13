@@ -149,8 +149,10 @@ def chunk_query(goal, params):
         chunk_params = params.copy()
         chunk_params['bdate'] = chunk_bdate.strftime('%Y%m%d')
         chunk_params['edate'] = chunk_edate.strftime('%Y%m%d')
-        print(chunk_params)
-        print(goal)
+        
+        print('Now requesting: ', goal)
+        print('Between datetime: ', chunk_params['bdate'], chunk_params['edate'])
+        
 
         api_response = aqs_api.get_data(goal, chunk_params)
         if api_response.status_code == 200:

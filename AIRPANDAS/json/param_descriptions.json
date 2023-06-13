@@ -1,0 +1,9 @@
+{
+    "param": "a 5-digit code representing the type of pollutant you are looking for; e.g. PM2.5 = 88101, PM10 = 81102, ozone = 44201, carbon monoxide = 42101, sulfur dioxide = 42401, nitrogen dioxide = 42602", 
+    "bdate": "the begin time of the data selection, in yyyymmdd; e.g. 20100101",
+    "edate": "the end time of the data selection, in yyyymmdd; e.g. 20211230",
+    "state": "a 2-digit code representing the state you are looking for; e.g. California = 06",
+    "county": "a 3-digit code representing the county you are looking for; e.g. Los Angeles = 037",
+    "service": "the endpoint you are looking for; e.g. dailysummary = dailyData"
+
+}
