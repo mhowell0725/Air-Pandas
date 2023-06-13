@@ -4,7 +4,7 @@ import census_request
 import database_query as dbq
 import textwrap
 
-class AqsGui:
+class AqsGUI:
     def __init__(self):
 
         # Define the layout for the GUI
@@ -128,7 +128,7 @@ class AqsGui:
 
         self.window.close()
 
-class CensusGui:
+class CensusGUI:
     def __init__(self):
         self.api_key = census_request.get_api_key()
         self.category_code_dict = census_request.read_json('AIRPANDAS\json\category_code.json')
