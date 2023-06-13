@@ -190,10 +190,10 @@ def create_side_comparison(level, year, census_table, census_columns):
 
 ## A small show case of the functions here if you run this py file ##
 def main():
-    # import database_query as dbq
-    # dbq.create_index('airpandas_1.sqlite', 'PM25', 'year')
-    # dbq.create_index('airpandas_1.sqlite', 'PM25', 'FIPS')
-    # dbq.create_index('airpandas_1.sqlite', 'PM25', ['date_local', 'FIPS'])
+    import database_query as dbq
+    dbq.create_index('airpandas_1.sqlite', 'PM25', 'year')
+    dbq.create_index('airpandas_1.sqlite', 'PM25', 'FIPS')
+    dbq.create_index('airpandas_1.sqlite', 'PM25', ['date_local', 'FIPS'])
 
     # Compare air quality with educational attainment and income
     census_tables = ['Education', 'Income']

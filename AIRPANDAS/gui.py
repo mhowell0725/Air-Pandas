@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import aqs_request
 import census_request
 import database_query as dbq
+import visualization as viz
 import textwrap
 
 class AqsGUI:
@@ -177,6 +178,8 @@ class dbGUI:
     def start(self):
         if self.database == None:
             self.database = self.select_database()
+            if self.database == None:
+                return
         self.main_menu()
                 
     def select_database(self):
@@ -204,6 +207,7 @@ class dbGUI:
         layout = [
             [sg.Text('Choose an operation')],
             [sg.Button('Query data from a table')],
+            [sg.Button('Plotting')],
             [sg.Button('Exit')]
         ]
 
@@ -215,6 +219,9 @@ class dbGUI:
                 break
             elif event == 'Query data from a table':
                 self.query_data()
+            elif event == 'Plotting':
+                window.close()
+                self.visualization()
 
         window.close()
 
@@ -232,7 +239,7 @@ class dbGUI:
             event, values = table_window.read()
             if event in (sg.WINDOW_CLOSED, 'Back'):
                 break
-            elif event == '-TABLE-':
+            elif event == 'OK':
                 table_name = values['-TABLE-'][0]
                 columns = dbq.get_column_names(table_name, self.database)
                 column_layout = [
@@ -264,129 +271,85 @@ class dbGUI:
                             if event in (sg.WINDOW_CLOSED, 'Back'):
                                 break
                             elif event == 'Submit':
+                                sg.popup_animated(sg.DEFAULT_BASE64_LOADING_GIF, background_color='white', transparent_color='white', time_between_frames=100)
+                                
                                 start_date = values['-START_DATE-']
                                 end_date = values['-END_DATE-']
                                 fips = values['-FIPS-'] if values['-FIPS-'] else None
                                 df = dbq.query_table(self.database, table_name, selected_columns, start_date, end_date, fips)
-                                print(df)
+                                
+                                sg.popup_animated(None)
+
+                                print("dataframe:",df.head())
+                                df.to_csv(f'{table_name}_{start_date}_{end_date}.csv')
+                                sg.popup(f'Data successfully retrieved and saved as {table_name}_{start_date}_{end_date}.csv')
+                                
                         date_window.close()
 
                 column_window.close()
         table_window.close()
-# Using the GUI
-gui = dbGUI()
-gui.start()
 
+    def visualization(self):
+        tables = dbq.get_all_tables(self.database)
+        table_layout = [
+            [sg.Text('Choose a *Census* table')],
+            [sg.Listbox(values=tables, size=(30, len(tables)), key='-TABLE-', enable_events=True)],
+            [sg.Button('OK'), sg.Button('Back')]
+        ]
 
+        table_window = sg.Window('Select Table', table_layout)
 
+        while True:
+            event, values = table_window.read()
+            if event in (sg.WINDOW_CLOSED, 'Back'):
+                break
+            elif event == 'OK':
+                table_name = values['-TABLE-'][0]
+                columns = dbq.get_column_names(table_name, self.database)
+                column_layout = [
+                    [sg.Text('Choose columns')],
+                    [sg.Listbox(values=columns, size=(30, len(columns)), key='-COLUMNS-')],
+                    [sg.Button('OK'), sg.Button('Back')]
+                ]
 
-# import PySimpleGUI as sg
-# import aqs_request
-# import textwrap
+                column_window = sg.Window('Select Columns', column_layout)
 
+                while True:
+                    event, values = column_window.read()
+                    if event in (sg.WINDOW_CLOSED, 'Back'):
+                        break
+                    elif event == 'OK':
+                        selected_columns = values['-COLUMNS-']
+                        year_threshold_layout = [
+                            [sg.Text('Choose a Year (2009 - 2021) and a Threshold for PM2.5')],
+                            [sg.Spin([i for i in range(2009, 2022)], initial_value=2009, key='-YEAR-', size=(10, 1))],
+                            [sg.Text('Enter threshold for PM2.5, the plot will show the percentage of time above this threshold')],                            
+                            [sg.Input(key='-THRESHOLD-', size=(10, 1)),sg.Text('ug/m^3')],
+                            [sg.Text('Note: below 12 ug/m^3 is healthy, 25 is fair, 50 is poor, 100+ is very poor')],
+                            [sg.Button('OK'), sg.Button('Back')]
+                        ]
 
-# param_descriptions = aqs_request.load_param_descriptions()
-# for param, description in param_descriptions.items():
-#     param_descriptions[param] = textwrap.fill(description, width=50)
+                        year_threshold_window = sg.Window('Select Year and Threshold', year_threshold_layout)
 
+                        while True:
+                            event, values = year_threshold_window.read()
+                            if event in (sg.WINDOW_CLOSED, 'Back'):
+                                break
+                            elif event == 'OK':
+                                # show loading gif
+                                sg.popup_animated(sg.DEFAULT_BASE64_LOADING_GIF, background_color='white', transparent_color='white', time_between_frames=100)
+                                year = int(values['-YEAR-'])
+                                threshold = float(values['-THRESHOLD-'])
 
-# def create_aqs_param_inputs(goal):
-#     """
-#     Create a list of layout elements for the required parameters of the given goal.
+                                # create the plot
+                                fig, _ = viz.create_side_comparison(threshold, year, table_name, selected_columns)
+                                fig.write_html(f"{table_name}_comparison_{year}.html")
 
-#     :param goal: The selected goal from the drop-down menu.
-#     :return: A list of layout elements.
-#     """
-#     aqs_param_inputs = []
-#     params = aqs_request.get_params(goal)
+                                # stop loading gif
+                                sg.popup_animated(None)
 
+                        year_threshold_window.close()
 
-#     for param in params:
-#         param_description = param_descriptions.get(param, "No description available.")
-#         aqs_param_inputs.append([sg.Text(param + ":"), 
-#                              sg.Input(key=param),
-#                              sg.pin(sg.Button('?', 
-#                                               # when hover show both param and description
-#                                               tooltip= f'{param}: {param_description}',
-#                                               button_color=('black', 'white'), 
-#                                               border_width=0,
-#                                               key=f'Help_{param}'))])
-    
+                column_window.close()
 
-#     return aqs_param_inputs
-
-# # Define the layout for the GUI
-# layout = [
-#     [sg.Text("Select a search goal:")],
-#     [sg.InputCombo(list(aqs_request.load_serach_goals().keys()), key="goal")],
-#     [sg.Button("Get Data"), sg.Button("Save Data"), sg.Button("Exit")]
-# ]
-
-# dataframe = None ## when "get_data", dataframe will be change to that and can be saved
-
-# # Create the window with the defined layout
-# window = sg.Window("EPA AQS Data Retrieval", layout)
-
-# # Event loop for handling user interactions
-# while True:
-#     event, values = window.read()
-
-#     if event in (sg.WIN_CLOSED, "Exit"):
-#         break
-#     elif event == "Get Data":
-#         goal = values["goal"]
-#         #print(f"Goal: {goal}")  # For Debugging: Print the selected goal
-#         if goal:
-#             try:
-#                 # Create input fields for the required parameters
-#                 aqs_param_inputs = create_aqs_param_inputs(goal)
-#                 layout_params = [
-#                     [sg.Text("Enter the required parameters:")],
-#                     *[[element] for element in aqs_param_inputs],
-#                     [sg.Button("Submit Parameters"), sg.Button("Cancel")]
-#                 ]
-#                 window_params = sg.Window("Enter Parameters", layout_params)
-                
-#                 # Event loop for the parameters window
-#                 while True:
-#                     event_params, values_params = window_params.read()
-#                     if event_params in (sg.WIN_CLOSED, "Cancel"):
-#                         break
-#                     elif event_params == "Submit Parameters":
-#                         # Update the complete_params function to accept a dictionary of parameters
-#                         params = aqs_request.complete_params(aqs_request.get_params(goal), values_params)
-#                         dataframe = aqs_request.execute_query_strategy(goal, params)
-                        
-#                     elif event_params.startswith("Help_"):
-#                         # Get the parameter this help button is associated with
-#                         param = event_params.split("_")[1]
-#                         # Get the description of this parameter
-#                         description = param_descriptions.get(param, "No description available.")
-#                         # Create a new window to display the parameter and its description
-#                         layout_description = [
-#                             [sg.Text(f"{param}:\n{description}")],
-#                             [sg.Button("Close")]
-#                         ]
-#                         window_description = sg.Window("Parameter Description", layout_description)
-                        
-#                         # Event loop for the description window
-#                         while True:
-#                             event_description, values_description = window_description.read()
-#                             if event_description in (sg.WIN_CLOSED, "Close"):
-#                                 break
-
-#                         window_description.close()
-                    
-
-#                 window_params.close()
-                
-#             except Exception as e:
-#                 sg.popup_error(f"Error: {str(e)}")
-
-
-#     elif event == "Save Data": ## need to get data first
-
-#         aqs_request.save_data(dataframe)
-
-
-# window.close()
+        table_window.close()
