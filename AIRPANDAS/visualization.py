@@ -14,7 +14,7 @@ import plotly.express as px
 import json
 
 
-with open('AIRPANDAS\json\geojson-counties-fips.json', 'r') as file:
+with open('/Users/mattthowell/Coding/Air-Pandas/AIRPANDAS/json/geojson-counties-fips.json', 'r') as file:
     counties = json.load(file)
     
 # function to calculate proportion of times in a year there was a certan level of air quality
@@ -186,7 +186,7 @@ def create_side_comparison(level, year, census_table, census_columns):
     
     fig.update_layout(coloraxis = {'colorscale':'viridis'})
     
-    return(fig, fig.show())
+    return(fig.show())
 
 ## A small show case of the functions here if you run this py file ##
 def main():
