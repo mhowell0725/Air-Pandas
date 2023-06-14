@@ -13,8 +13,6 @@ With AIRPANDAS, you can:
 AIRPANDAS also includes a user-friendly GUI that integrates all these features, making it easy for users of all levels to leverage the power of it. 
 
 
-## Project Structure
-
 ### Briefing
 
 All python scrips are under the `AIRPANDS` folder. In short, it centered around populating and interacting with an SQLite datbase.
@@ -30,9 +28,10 @@ All python scrips are under the `AIRPANDS` folder. In short, it centered around 
 Basically, run the `main.py` file under *root repository*. (The file is inside the `AIRPANDAS` folder, but when you run it, your base repository should be just outside, in its **parent** folder.)
 
 To test all feature of this application, you would need to prepare:
-    - For *Air Quality Request*, an email and corresponding APIkey for the AQS database; You can obtain this by access the following url: `https://aqs.epa.gov/data/api/signup?email={youremail}`. Replace *{youremail}* (including the bracket outside) with your actual email address and you'll receive an APIkey.
-    - For *Census Request*, get API key from [here](https://api.census.gov/data/key_signup.html)
-    - For *Database Query* features, you'll need to locate a proper SQLite database file. We've provide a sample database with PM2.5 measurement and various census data. Unzip the `airpandas_1.7z` to get the sample sqlite database, or create your own using the code we provided.
+
+- For *Air Quality Request*, an email and corresponding APIkey for the AQS database; You can obtain this by access the following url: `https://aqs.epa.gov/data/api/signup?email={youremail}`. Replace *{youremail}* (including the bracket outside) with your actual email address and you'll receive an APIkey.
+- For *Census Request*, get API key from [here](https://api.census.gov/data/key_signup.html)
+- For *Database Query* features, you'll need to locate a proper SQLite database file. We've provide a sample database with PM2.5 measurement and various census data. Unzip the `airpandas_1.7z` to get the sample sqlite database, or create your own using the code we provided.
 
 Here are the steps to run the application:
 
@@ -50,7 +49,7 @@ Some notes:
     - When query or plot data from our sample database, you may find certain variables to be missing in certain years. Check the `census_metadata_cleaned.xlsx` in acs5_metadata to see if centain variable is avaliable in certain year. 
 
 
-### Detailed Project Structure
+## Detailed Project Structure
 
 ##### Data Collection
 
