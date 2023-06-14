@@ -186,7 +186,7 @@ def create_side_comparison(level, year, census_table, census_columns):
     
     fig.update_layout(coloraxis = {'colorscale':'viridis'})
     
-    return(fig.show())
+    fig.show()
 
 ## A small show case of the functions here if you run this py file ##
 def main():
