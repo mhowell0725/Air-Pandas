@@ -1,0 +1,7 @@
+requests
+PySimpleGUI
+pandas
+sqlalchemy
+sqlite3
+plotly
+numpy

@@ -2,5 +2,4 @@ myEmailKey.txt
 *.csv
 censusapikey.txt
 *.sqlite
-Visualizations and Analysis/choropleth_animation.gif
 *.html

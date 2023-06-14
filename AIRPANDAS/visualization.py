@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 import sqlite3
 import pandas as pd
 
-import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
