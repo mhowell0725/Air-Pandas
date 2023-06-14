@@ -51,6 +51,8 @@ Some notes:
 
 ## Detailed Project Structure
 
+![Flowchart](https://github.com/mhowell0725/Air-Pandas/assets/115759986/793bff6d-b22f-485a-bf03-1b5f6801c537)
+
 ##### Data Collection
 
 - `aqs_request.py`: This file interacts with the Air Quality System (AQS) API to request and scrape air quality data. Require JSON files: (see `json` folder)
