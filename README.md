@@ -1,5 +1,5 @@
 
-# Welcome to AIRPANDAS!!:
+# Welcome to AIRPANDAS!!
 
 AIRPANDAS is a Python-based project that interacts with the Air Quality System (AQS) API and the ACS5 US Census API to collect, process, and visualize air quality and census data. It provides a suite of tools to help you create custom SQLite databases, interact with them, and visualize your data in meaningful ways.
 
